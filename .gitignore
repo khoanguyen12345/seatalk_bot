@@ -1,0 +1,26 @@
+# Python cache and compiled files
+__pycache__/
+
+# Virtual environment
+venv/
+env/
+
+# Sensitive credentials
+*.env
+credentials.json
+
+# OS/system files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Byte-compiled or Jupyter checkpoints
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Deploy/build artifacts
+*.egg-info/
+build/
+dist/
