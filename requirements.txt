@@ -1,5 +1,4 @@
 annotated-types==0.7.0
-anyio @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_anyio_1742243108/work
 appnope @ file:///home/conda/feedstock_root/build_artifacts/appnope_1733332318622/work
 archspec @ file:///home/conda/feedstock_root/build_artifacts/archspec_1708969572489/work
 argon2-cffi @ file:///home/conda/feedstock_root/build_artifacts/argon2-cffi_1733311059102/work
