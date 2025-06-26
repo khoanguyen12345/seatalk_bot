@@ -12,12 +12,12 @@ import threading
 
 load_dotenv()
 
-app = Flask(__name__)
-
 SIGNING_SECRET = os.getenv("SIGNING_SECRET").encode()
 SEATALK_MESSAGE_URL = os.getenv("SEATALK_WEBHOOK")
 SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")
 BOT_NAME = "KOL Information"
+
+sheet_data_cache = []
 
 EVENT_VERIFICATION = "event_verification"
 NEW_BOT_SUBSCRIBER = "new_bot_subscriber"
@@ -29,6 +29,23 @@ NEW_MENTIONED_MESSAGE_RECEIVED_FROM_GROUP_CHAT = "new_mentioned_message_received
 GOOGLE_CREDENTIALS_PATH='credentials.json'
 
 EVENT_VERIFICATION = "event_verification"
+
+def load_sheet_data():
+    global sheet_data_cache
+    print("Loading full sheet into memory...")
+    service = authenticate_google_sheets()
+    sheet = service.spreadsheets()
+    RANGE = '[Mar25] List Result from BI!A1:BS'
+    try:
+        result = sheet.values().get(spreadsheetId=SPREADSHEET_ID, range=RANGE).execute()
+        sheet_data_cache = result.get('values', [])
+        print(f"Loaded {len(sheet_data_cache)} rows into memory.")
+    except Exception as e:
+        print("Error loading sheet data at startup:", e)
+
+load_sheet_data()
+
+app = Flask(__name__)
 
 def is_valid_signature(signing_secret: bytes, body: bytes, signature: str) -> bool:
     return hashlib.sha256(body + signing_secret).hexdigest() == signature
@@ -137,35 +154,11 @@ def getDataAndSendMessage(identifier,informationList):
 
 #################################### HELPER FUNCTIONS ##########################################
 def xlookup(identifier, lookup_col_index):
-    service = authenticate_google_sheets()
-    sheet = service.spreadsheets()
-
-    col_letter = chr(ord('A') + lookup_col_index)
-    lookup_range = f'[Mar25] List Result from BI!{col_letter}1:{col_letter}'
-
-    try:
-        result = sheet.values().get(spreadsheetId=SPREADSHEET_ID, range=lookup_range).execute()
-        column_values = result.get('values', [])
-    except Exception as e:
-        print("Error fetching lookup column:", e)
-        return None
-    row_index = None
-    for i, row in enumerate(column_values):
-        if row and row[0].strip() == identifier.strip():
-            row_index = i + 1
-            break
-
-    if row_index is None:
-        return None
-    try:
-        row_range = f'[Mar25] List Result from BI!A{row_index}:BS{row_index}'
-        result = sheet.values().get(spreadsheetId=SPREADSHEET_ID, range=row_range).execute()
-        full_row = result.get('values', [[]])[0]
-        return full_row
-    except Exception as e:
-        print("Error fetching full row:", e)
-        return None
-
+    global sheet_data_cache
+    for row in sheet_data_cache:
+        if len(row) > lookup_col_index and row[lookup_col_index].strip() == identifier.strip():
+            return row
+    return None
 def authenticate_google_sheets():
     SERVICE_ACCOUNT_FILE = os.getenv("GOOGLE_CREDENTIALS_PATH")
     SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
