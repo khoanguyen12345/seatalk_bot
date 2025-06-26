@@ -110,7 +110,7 @@ def getDataAndSendMessage(identifier,informationList):
     for cols in result_cols:
         result.append(result_row[cols])
 
-    resultString = ""
+    resultString = f"{identifier} Request Status:\n\n"
 
     for i in range(len(result)):
         raw_value = result[i]
