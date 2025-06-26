@@ -8,12 +8,11 @@ from google.oauth2 import service_account
 from typing import Dict, Any
 from dotenv import load_dotenv
 import os
+import threading
 
 load_dotenv()
 
 app = Flask(__name__)
-
-MESSAGE_SENT = False
 
 SIGNING_SECRET = os.getenv("SIGNING_SECRET").encode()
 SEATALK_MESSAGE_URL = os.getenv("SEATALK_WEBHOOK")
@@ -129,8 +128,6 @@ def getDataAndSendMessage(identifier,informationList):
             print(formatted_value)
 
         resultString += valid_info_list[i] + ": " + formatted_value + "\n"
-    if MESSAGE_SENT == False:
-        MESSAGE_SENT = True
         sendMessage(resultString)
     return
 
@@ -193,10 +190,10 @@ def bot_callback_handler():
         inputString = user_message.split(" ",1)
         informationFields = inputString[1]
         fields = informationFields.split(" ")
-        getDataAndSendMessage(inputString[0],fields)
+        
+        threading.Thread(target=getDataAndSendMessage, args=(inputString[0], fields)).start()
         return Response("", status=200)
     else:
-        pass
         return Response("", status=204)
 
 if __name__ == "__main__":
