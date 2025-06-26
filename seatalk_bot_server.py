@@ -128,7 +128,7 @@ def getDataAndSendMessage(identifier,informationList):
             print(formatted_value)
 
         resultString += valid_info_list[i] + ": " + formatted_value + "\n"
-        sendMessage(resultString)
+    sendMessage(resultString)
     return
 
 #################################### HELPER FUNCTIONS ##########################################
