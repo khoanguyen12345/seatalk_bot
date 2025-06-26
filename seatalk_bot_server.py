@@ -10,6 +10,8 @@ from dotenv import load_dotenv
 import os
 import threading
 
+#################################### SET-UP ##########################################
+
 load_dotenv()
 
 SIGNING_SECRET = os.getenv("SIGNING_SECRET").encode()
@@ -29,6 +31,15 @@ NEW_MENTIONED_MESSAGE_RECEIVED_FROM_GROUP_CHAT = "new_mentioned_message_received
 GOOGLE_CREDENTIALS_PATH='credentials.json'
 
 EVENT_VERIFICATION = "event_verification"
+
+def authenticate_google_sheets():
+    SERVICE_ACCOUNT_FILE = os.getenv("GOOGLE_CREDENTIALS_PATH")
+    SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+
+    credentials = service_account.Credentials.from_service_account_file(
+        SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+    service = build('sheets', 'v4', credentials=credentials)
+    return service
 
 def load_sheet_data():
     global sheet_data_cache
@@ -64,6 +75,8 @@ def sendMessage(message):
     }
     response = requests.post(SEATALK_MESSAGE_URL, headers=headers, data=json.dumps(messageContent),timeout = 3.05)
     return response
+
+#################################### CORE FUNCTIONS (CONFIG HERE) ##########################################
 
 def getDataAndSendMessage(identifier,informationList):
     RANGE = '[Mar25] List Result from BI!A1:BS'
@@ -159,14 +172,6 @@ def xlookup(identifier, lookup_col_index):
         if len(row) > lookup_col_index and row[lookup_col_index].strip() == identifier.strip():
             return row
     return None
-def authenticate_google_sheets():
-    SERVICE_ACCOUNT_FILE = os.getenv("GOOGLE_CREDENTIALS_PATH")
-    SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-
-    credentials = service_account.Credentials.from_service_account_file(
-        SERVICE_ACCOUNT_FILE, scopes=SCOPES)
-    service = build('sheets', 'v4', credentials=credentials)
-    return service
 
 @app.route("/bot-callback", methods=["POST"])
 def bot_callback_handler():
