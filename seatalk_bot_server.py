@@ -56,7 +56,6 @@ def getDataAndSendMessage(identifier,informationList):
     result = sheet.values().get(spreadsheetId=SPREADSHEET_ID, range=RANGE).execute()
     values = result.get('values', [])
 
-    result_col = -1
     lookup_col = -1
 
     if identifier.isdigit():
@@ -99,13 +98,18 @@ def getDataAndSendMessage(identifier,informationList):
             result_cols.append(2)
             valid_info_list.append("Channel Name")
             break
-        else:
+        else: 
             continue
     
     result_row = xlookup(values,identifier,lookup_col)
+    print(result_row)
 
+    if informationList == []:
+        sendMessage("Please Input Information")
+        return
+    
     if result_row == None:
-        sendMessage("Invalid KOL Input") 
+        sendMessage("Invalid KOL Name") 
         return
 
     for cols in result_cols:
