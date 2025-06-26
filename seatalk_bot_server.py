@@ -99,7 +99,6 @@ def getDataAndSendMessage(identifier,informationList):
             valid_info_list.append("Channel Name")
         else: 
             error_list.append(information)
-            continue
     
     result_row = xlookup(values,identifier,lookup_col)
     print(result_row)
@@ -129,8 +128,9 @@ def getDataAndSendMessage(identifier,informationList):
 
         resultString += valid_info_list[i] + ": " + formatted_value + "\n"
     
-    error_string = ', '.join(error_list)
-    resultString += "I was not able to find the following fields: " + error_string
+    if len(error_list) > 0:
+        error_string = ', '.join(error_list)
+        resultString += "I was not able to find the following fields: " + error_string
     
     sendMessage(resultString)
     return
