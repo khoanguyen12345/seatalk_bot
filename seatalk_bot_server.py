@@ -70,6 +70,11 @@ def getDataAndSendMessage(identifier,informationList):
     result = []
         
 
+    print(len(informationList))
+    if len(informationList) == 0:
+        sendMessage("Please Input Information")
+        return
+
     for information in informationList:    
         if information == "overview":
             result_cols.extend([0,1,2,43,52,16])
@@ -103,10 +108,6 @@ def getDataAndSendMessage(identifier,informationList):
     
     result_row = xlookup(values,identifier,lookup_col)
     print(result_row)
-
-    if informationList == []:
-        sendMessage("Please Input Information")
-        return
     
     if result_row == None:
         sendMessage("Invalid KOL Name") 
