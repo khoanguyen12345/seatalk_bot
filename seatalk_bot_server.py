@@ -13,6 +13,8 @@ load_dotenv()
 
 app = Flask(__name__)
 
+MESSAGE_SENT = False
+
 SIGNING_SECRET = os.getenv("SIGNING_SECRET").encode()
 SEATALK_MESSAGE_URL = os.getenv("SEATALK_WEBHOOK")
 SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")
@@ -127,8 +129,9 @@ def getDataAndSendMessage(identifier,informationList):
             print(formatted_value)
 
         resultString += valid_info_list[i] + ": " + formatted_value + "\n"
-
-    sendMessage(resultString)
+    if MESSAGE_SENT == False:
+        MESSAGE_SENT = True
+        sendMessage(resultString)
     return
 
 #################################### HELPER FUNCTIONS ##########################################
