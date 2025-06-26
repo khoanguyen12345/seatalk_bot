@@ -100,7 +100,7 @@ def getDataAndSendMessage(identifier,informationList):
         else: 
             error_list.append(information)
     
-    result_row = xlookup(values,identifier,lookup_col)
+    result_row = xlookup(identifier,lookup_col)
     print(result_row)
     
     if result_row == None:
