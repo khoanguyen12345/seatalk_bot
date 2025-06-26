@@ -104,13 +104,13 @@ def getDataAndSendMessage(identifier,informationList):
     print(result_row)
     
     if result_row == None:
-        sendMessage("KOL not found") 
+        sendMessage("**Error:** **{identifier}** not found.") 
         return
 
     for cols in result_cols:
         result.append(result_row[cols])
 
-    resultString = f"{identifier} Request Status:\n\n"
+    resultString = f"As requested, please find the information on **{identifier}** below. \n\n"
 
     for i in range(len(result)):
         raw_value = result[i]
@@ -130,7 +130,7 @@ def getDataAndSendMessage(identifier,informationList):
     
     if len(error_list) > 0:
         error_string = ', '.join(error_list)
-        resultString += "I was not able to find the following fields: " + error_string
+        resultString += "**Error:** Could not find " + error_string + "."
     
     sendMessage(resultString)
     return
@@ -196,7 +196,7 @@ def bot_callback_handler():
             informationFields = inputString[1]
             fields = informationFields.split(" ")
         except:
-            sendMessage("Please enter the information you want to see")
+            sendMessage("**Error:** No information requested.")
             return Response("", status=200)
         
         threading.Thread(target=getDataAndSendMessage, args=(inputString[0], fields)).start()
