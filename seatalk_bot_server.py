@@ -54,9 +54,9 @@ def load_sheet_data():
     except Exception as e:
         print("Error loading sheet data at startup:", e)
 
-load_sheet_data()
-
 app = Flask(__name__)
+
+load_sheet_data()
 
 def is_valid_signature(signing_secret: bytes, body: bytes, signature: str) -> bool:
     return hashlib.sha256(body + signing_secret).hexdigest() == signature
