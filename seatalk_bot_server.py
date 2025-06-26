@@ -44,7 +44,7 @@ def sendMessage(message):
     headers = {
         "Content-Type": "application/json"
     }
-    response = requests.post(SEATALK_MESSAGE_URL, headers=headers, data=json.dumps(messageContent))
+    response = requests.post(SEATALK_MESSAGE_URL, headers=headers, data=json.dumps(messageContent),timeout = 3.05)
     return response
 
 def getDataAndSendMessage(identifier,informationList):
