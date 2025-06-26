@@ -68,12 +68,7 @@ def getDataAndSendMessage(identifier,informationList):
     result_cols = []
     valid_info_list = []
     result = []
-        
-
-    print(len(informationList))
-    if len(informationList) == 0:
-        sendMessage("Please Input Information")
-        return
+    error_list = []
 
     for information in informationList:    
         if information == "overview":
@@ -102,15 +97,15 @@ def getDataAndSendMessage(identifier,informationList):
         elif "name" in information:
             result_cols.append(2)
             valid_info_list.append("Channel Name")
-            break
         else: 
+            error_list.append(information)
             continue
     
     result_row = xlookup(values,identifier,lookup_col)
     print(result_row)
     
     if result_row == None:
-        sendMessage("Invalid KOL Name") 
+        sendMessage("KOL not found") 
         return
 
     for cols in result_cols:
@@ -133,6 +128,10 @@ def getDataAndSendMessage(identifier,informationList):
             print(formatted_value)
 
         resultString += valid_info_list[i] + ": " + formatted_value + "\n"
+    
+    error_string = ', '.join(error_list)
+    resultString += "I was not able to find the following fields: " + error_string
+    
     sendMessage(resultString)
     return
 
@@ -193,8 +192,12 @@ def bot_callback_handler():
         user_message = user_message[len(mention_tag):].lstrip()
 
         inputString = user_message.split(" ",1)
-        informationFields = inputString[1]
-        fields = informationFields.split(" ")
+        try:
+            informationFields = inputString[1]
+            fields = informationFields.split(" ")
+        except:
+            sendMessage("Please enter the information you want to see")
+            return Response("", status=200)
         
         threading.Thread(target=getDataAndSendMessage, args=(inputString[0], fields)).start()
         return Response("", status=200)
