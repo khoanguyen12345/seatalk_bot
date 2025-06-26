@@ -104,7 +104,7 @@ def getDataAndSendMessage(identifier,informationList):
     print(result_row)
     
     if result_row == None:
-        sendMessage("**Error:** **{identifier}** not found.") 
+        sendMessage(f"**Error:** **{identifier}** not found.") 
         return
 
     for cols in result_cols:
@@ -130,7 +130,7 @@ def getDataAndSendMessage(identifier,informationList):
     
     if len(error_list) > 0:
         error_string = ', '.join(error_list)
-        resultString += "**Error:** Could not find " + error_string + "."
+        resultString += f"**Error:** Could not find {error_string}."
     
     sendMessage(resultString)
     return
