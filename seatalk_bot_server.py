@@ -100,7 +100,7 @@ def getDataAndSendMessage(identifier,informationList):
         else: 
             error_list.append(information)
     
-    result_row = xlookup(identifier,lookup_col)
+    result_row = xlookup(values,identifier,lookup_col)
     print(result_row)
     
     if result_row == None:
@@ -136,35 +136,13 @@ def getDataAndSendMessage(identifier,informationList):
     return
 
 #################################### HELPER FUNCTIONS ##########################################
-def xlookup(identifier, lookup_col_index):
-    service = authenticate_google_sheets()
-    sheet = service.spreadsheets()
+def xlookup(values, lookup_value, lookup_col_index):
+    for row in values:
+        if len(row) > lookup_col_index:
+            if row[lookup_col_index] == lookup_value:
+                return row
+    return None
 
-    col_letter = chr(ord('A') + lookup_col_index)
-    lookup_range = f'[Mar25] List Result from BI!{col_letter}1:{col_letter}'
-
-    try:
-        result = sheet.values().get(spreadsheetId=SPREADSHEET_ID, range=lookup_range).execute()
-        column_values = result.get('values', [])
-    except Exception as e:
-        print("Error fetching lookup column:", e)
-        return None
-    row_index = None
-    for i, row in enumerate(column_values):
-        if row and row[0].strip() == identifier.strip():
-            row_index = i + 1
-            break
-
-    if row_index is None:
-        return None
-    try:
-        row_range = f'[Mar25] List Result from BI!A{row_index}:BS{row_index}'
-        result = sheet.values().get(spreadsheetId=SPREADSHEET_ID, range=row_range).execute()
-        full_row = result.get('values', [[]])[0]
-        return full_row
-    except Exception as e:
-        print("Error fetching full row:", e)
-        return None
 
 def authenticate_google_sheets():
     SERVICE_ACCOUNT_FILE = os.getenv("GOOGLE_CREDENTIALS_PATH")
