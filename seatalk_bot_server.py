@@ -9,6 +9,7 @@ from typing import Dict, Any
 from dotenv import load_dotenv
 import os
 import threading
+from google import genai
 
 load_dotenv()
 
