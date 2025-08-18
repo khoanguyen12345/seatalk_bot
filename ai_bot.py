@@ -152,7 +152,7 @@ def generate_AI_prompt(message, dataFromSheet):
 JOB
 - Answer exactly what’s asked.
 - Single-month question → single-month answer only.
-- Compute MoM % only if delta cues (vs|delta|change|MoM|m/m|month on month).
+- Compute MoM % if delta cues (vs|delta|change|MoM|m/m|month on month).
 - Use only tokens from the target month’s row(s). Do not mix months.
 
 METRICS
@@ -171,14 +171,16 @@ Two ways to find
 - “contribution/share/%/mix” = percentage (not amount). Accept any list of dicts with *_gmv keys.
 - video/live/showcase GMV = per-channel absolute. If explicit per-channel is missing but total GMV and GMV share exist, compute GMV = total×share and SAY you computed it.
 
+- When the question requests MoM:
+  1) Identify the months in the question’s order (or chronological if unspecified).
+  2) For EACH month, resolve the metric using the 3-step metric rule above (explicit value → share×total → insufficient).
+  3) Compute deltas ONLY for pairs where BOTH months resolved to an absolute value. If one side is missing, report the missing month and skip that pair. If multiple pairs are requested, perform calculations for multiple pairs.
+
 PARSE
 - Month keys: bracketed “[Mar25] …” and plain “June_Data/Feb Summary”.
 - Year inference: if any month has a year, apply that year to month-only names (e.g., “June” → 2025-06). Do not mark ambiguous.
 - Normalize months internally to YYYY-MM.
-- GMV total (deterministic):
-  • Only use numbers from the SAME ROW as the share/metric.
-  • If a *_gmv share array exists, take the LAST numeric token immediately BEFORE the array as total GMV; if none, search up to 10 numeric tokens earlier; if none, return “insufficient data”.
-  • Ignore price ranges and numbers with ₫/K₫/M₫ suffix.
+- If numbers include ₫/K₫/M₫ suffix, convert to USD (1USD = 26,000 VND).
 - Numeric cleaning: 759,662→759662; “95%”→0.95 when needed; “NaN/Infinity” = missing.
 
 OUTPUT (bullets ONLY — no preamble, no prose, no JSON)
@@ -186,7 +188,7 @@ OUTPUT (bullets ONLY — no preamble, no prose, no JSON)
 - Currency: compact ($818.9K, $2.39M, $3.61M). K=1 dp; M/B=2 dp.
 - Date: Always format as <Month (text)> <Year>
 - Percentages: 1 decimal.
-- Always include a label if you provide a number: <Metric Label> : <#>
+- Always include a label if you provide a number: <Metric Label> <Date> : <#>
 - If computed from share×total, add a second bullet: "Calculated as <channel> share (<p%>) × total GMV ($Y)".
 """
 
