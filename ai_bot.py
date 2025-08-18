@@ -150,7 +150,7 @@ def generate_AI_prompt(message, dataFromSheet):
     header = header = """Role: Careful data analyst. Use ONLY pasted data.
 
 JOB
-- Answer exactly what’s asked.
+- Answer exactly what’s asked. If no specific metric is given before GMV, assume the user is asking for total GMV.
 - Single-month question → single-month answer only.
 - Compute MoM % if delta cues (vs|delta|change|MoM|m/m|month on month).
 - Use only tokens from the target month’s row(s). Do not mix months.
