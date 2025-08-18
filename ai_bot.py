@@ -9,6 +9,7 @@ from typing import Dict, Any
 from dotenv import load_dotenv
 import os
 import threading
+import re
 import google.generativeai as genai
 
 load_dotenv()
@@ -55,7 +56,7 @@ def sendMessage(message):
 def find_row_and_fetch(spreadsheet_id: str, sheet_name: str, identifier: str, service):
     values_api = service.spreadsheets().values()
 
-    # 1) get only the lookup column (C:C); keep responses small
+    # 1) get only the lookup column (C:C)
     lookup_range = f"'{sheet_name}'!C:C"
     col_resp = values_api.get(
         spreadsheetId=spreadsheet_id,
@@ -64,13 +65,17 @@ def find_row_and_fetch(spreadsheet_id: str, sheet_name: str, identifier: str, se
     ).execute()
     col_vals = col_resp.get("values", [])
 
-    # 2) find first exact match (strip to mirror your code)
+    # normalize once for the input
+    id_key = normalize_key(identifier)
+
+    # 2) find first match using normalized comparison
     row_idx_0 = next(
-        (i for i, row in enumerate(col_vals) if row and str(row[0]).strip() == str(identifier).strip()),
+        (i for i, row in enumerate(col_vals)
+         if row and normalize_key(row[0]) == id_key),
         None
     )
     if row_idx_0 is None:
-        return None  # not found
+        return None
 
     # 3) fetch only that single row
     row_num = row_idx_0 + 1  # A1 is 1-based
@@ -120,10 +125,15 @@ def gemini_text(resp):
         pass
     # Fallback to dict view if available
     try:
-        import json
         return json.dumps(resp.to_dict(), ensure_ascii=False)
     except Exception:
         return "[No text content returned by the model.]"
+
+def normalize_key(s: str) -> str:
+    """Lowercase and strip all whitespace so 'hUng everything' == 'hungeverything'."""
+    if s is None:
+        return ""
+    return re.sub(r"\s+", "", str(s).lower())
 
 def generate_AI_prompt(message, dataFromSheet):
     if isinstance(dataFromSheet, str):
@@ -227,7 +237,7 @@ def bot_callback_handler():
             sendMessage("**Error:** No information requested.")
             return Response("", status=200)
         
-        threading.Thread(target=getDataAndSendMessage, args=(inputString[0], user_message)).start()
+        threading.Thread(target=getDataAndSendMessage, args=(normalize_key(inputString[0]), user_message)).start()
         return Response("", status=200)
     else:
         return Response("", status=204)
