@@ -167,7 +167,7 @@ PARSE
 - Year inference: if any month has a year, apply that year to month-only names (e.g., “June” → 2025-06). Do not mark ambiguous.
 - Normalize months internally to YYYY-MM; only sort/compare if Δ is asked.
 - GMV total: prefer the clearest total; ignore “K₫/M₫” price ranges; if multiple numeric candidates, pick the largest plain number; treat 759,662→759662; “NaN/Infinity” = missing; “95%”→0.95 when needed.
-- If only a share exists but an absolute was requested → say absolute unavailable; report share (and compute absolute only if a total exists).
+- If only a share exists but an absolute was requested → check if total exists. if it does, compute absolute by taking share * total. if not, say absolute unavailable.
 
 OUTPUT (bullets ONLY — no preamble, no prose, no JSON)
 - Format currency in compact form with symbol and unit: $818.9K, $2.39M, $3.61M (round: K=1 dp, M/B=2 dp).
