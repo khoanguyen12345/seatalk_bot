@@ -159,6 +159,7 @@ METRICS
 - GMV metric (live gmv, video gmv, showcase gmv): Two ways to find
   1. If header with matching gmv metric contains a value, return that value. Else, move to 2.
   2. Find total GMV (detailed under Total GMV Search below) and multiply with GMV share
+  3. If you went through 1 and 2 and still have not obtained a valid, reportable GMV, then say insufficient data. DO NOT say insufficient if you have not went through 1 and 2.
 - Total GMV Search:
   • Work within the SAME SHEET + target MONTH; prefer the SAME ROW as the share/metric.
   • Candidate filter: ignore percents, dates, NaN/Infinity. Keep numbers ≥ 1,000 or with ≥4 digits (e.g., 759662, 2,970,189.79).
