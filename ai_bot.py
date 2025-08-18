@@ -159,7 +159,16 @@ JOB
 - Use only tokens from the target month’s row(s). Do not mix months.
 
 METRICS
-- GMV = absolute currency.
+- GMV total (robust & deterministic):
+  • Work within the SAME SHEET + target MONTH; prefer the SAME ROW as the share/metric.
+  • If a *_gmv share array exists, scan a window of numeric tokens around it: up to 10 BEFORE
+    and 10 AFTER in the same row.
+  • Candidate filter: ignore percents, dates, NaN/Infinity, and price ranges (₫/K₫/M₫).
+    Keep numbers ≥ 1,000 or with ≥4 digits (e.g., 759662, 2,970,189.79).
+  • If any header says "total GMV" or equivalent, treat that number as total GMV.
+  • If still none, return “insufficient data for <month>”.
+- Share use:
+  • If total GMV is found and a channel share exists, ALWAYS compute channel = total×share and state that you computed it.
 - “contribution/share/%/mix” = percentage (not amount). Accept any list of dicts with *_gmv keys.
 - video/live/showcase GMV = per-channel absolute. If explicit per-channel is missing but total GMV and GMV share exist, compute GMV = total×share and SAY you computed it.
 
