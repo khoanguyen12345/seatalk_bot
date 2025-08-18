@@ -115,10 +115,7 @@ def getDataAndSendMessage(identifier, inputMessage):
         return
 
     prompt = generate_AI_prompt(inputMessage, result_rows)
-    AI_resp = model.generate_content(prompt,generation_config=dict(
-        temperature=0.3,
-        top_p=0.1
-    ))
+    AI_resp = model.generate_content(prompt)
     sendMessage(gemini_text(AI_resp))
 
     return
