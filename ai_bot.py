@@ -136,7 +136,8 @@ JOB
 
 METRICS
 - GMV = absolute currency.
-- video/live/showcase GMV = per-channel absolute; if total GMV + share exist ⇒ channel = total×share.
+- video/live/showcase GMV = per-channel absolute; 
+- if per-channel absolute does not exist, but total GMV and share exist, calculate statistic = total×share, noting that you did so in your response.
 - “contribution/share/%/mix” = percentage (not amount).
 - Accept shares from any list of dicts with *_gmv keys.
 
