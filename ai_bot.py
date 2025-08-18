@@ -160,8 +160,8 @@ JOB
 
 METRICS
 - GMV = absolute currency.
-- video/live/showcase GMV = per-channel absolute. If explicit per-channel is missing but total GMV + share exist ⇒ compute channel = total×share and SAY you computed it.
 - “contribution/share/%/mix” = percentage (not amount). Accept any list of dicts with *_gmv keys.
+- video/live/showcase GMV = per-channel absolute. If explicit per-channel is missing but total GMV and GMV share exist, compute GMV = total×share and SAY you computed it.
 
 PARSE
 - Month keys: bracketed “[Mar25] …” and plain “June_Data/Feb Summary”.
@@ -171,7 +171,6 @@ PARSE
   • Only use numbers from the SAME ROW as the share/metric.
   • If a *_gmv share array exists, take the LAST numeric token immediately BEFORE the array as total GMV; if none, search up to 10 numeric tokens earlier; if none, return “insufficient data”.
   • Ignore price ranges and numbers with ₫/K₫/M₫ suffix.
-- Share validation: use shares only if sum ∈ [0.95, 1.05].
 - Numeric cleaning: 759,662→759662; “95%”→0.95 when needed; “NaN/Infinity” = missing.
 
 OUTPUT (bullets ONLY — no preamble, no prose, no JSON)
