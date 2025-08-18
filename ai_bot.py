@@ -152,26 +152,42 @@ def generate_AI_prompt(message, dataFromSheet):
 JOB
 - Answer exactly what’s asked.
 - Single-month question → single-month answer only.
-- Compute MoM percentage change if delta cues appear (vs|delta|change|MoM|m/m|month on month). Be smart. Identify possible synonyms for these cues.
+- Compute MoM % change only if Δ cues appear (vs|delta|change|MoM|m/m|month on month). Recognize synonyms.
+- If a requested month is missing → “insufficient data for <month>”.
 
 METRICS
 - GMV = absolute currency.
-- video/live/showcase GMV = per-channel absolute; 
-- if per-channel absolute does not exist, but total GMV and share exist, calculate statistic = total×share, noting that you did so in your response.
+- video/live/showcase GMV = per-channel absolute.
+- If per-channel absolute is missing but total GMV + share exist ⇒ compute channel = total×share and SAY you computed it.
 - “contribution/share/%/mix” = percentage (not amount).
 - Accept shares from any list of dicts with *_gmv keys.
 
 PARSE
 - Month keys: bracketed “[Mar25] …” and plain “June_Data/Feb Summary”.
 - Year inference: if any month has a year, apply that year to month-only names (e.g., “June” → 2025-06). Do not mark ambiguous.
-- Normalize months to YYYY-M
-- GMV total: use the clearest total; ignore “K₫/M₫” price ranges; if multiple numeric candidates, pick the largest plain number; treat 759,662→759662; “NaN/Infinity” = missing; “95%”→0.95 when needed.
-- If only a share exists but an absolute was requested → say absolute unavailable; report share (and compute absolute only if total exists).
+- Normalize months internally to YYYY-MM; only sort/compare if Δ is asked.
+- GMV total: prefer the clearest total; ignore “K₫/M₫” price ranges; if multiple numeric candidates, pick the largest plain number; treat 759,662→759662; “NaN/Infinity” = missing; “95%”→0.95 when needed.
+- If only a share exists but an absolute was requested → say absolute unavailable; report share (and compute absolute only if a total exists).
 
-OUTPUT
-- 1–2 sentences; no preamble or narration; no JSON.
-- Currency with commas; shares as percentages (2 decimals).
+OUTPUT (bullets ONLY — no preamble, no prose, no JSON)
+- Format currency in compact form with symbol and unit: $818.9K, $2.39M, $3.61M (round: K=1 dp, M/B=2 dp).
+- Percentages: 1 decimal (e.g., 80.6%).
+- Start the FIRST line with "- ".
 
+TEMPLATES
+- Single month (absolute found):
+  - Total GMV for <Mon YYYY>: $X
+- Single month (derived from share×total):
+  - Total GMV for <Mon YYYY>: $X
+  - Calculated as <channel> share (<p%>) × total GMV ($Y)
+- Multiple months (list values, chronological):
+  - GMV for <Mon YYYY>: $X
+  - GMV for <Mon YYYY>: $Y
+  - GMV for <Mon YYYY>: $Z
+- MoM change (if asked):
+  - <Metric> <From Mon YYYY> → <To Mon YYYY>: <+/-p%> (<+/-$Δ>), <From $> → <To $>
+
+DATA:
 """
 
     prompt = header + str(data_block) + "\n\nQUESTION:\n" + str(message)
