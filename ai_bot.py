@@ -152,19 +152,20 @@ def generate_AI_prompt(message, dataFromSheet):
 JOB
 - Answer exactly what’s asked.
 - Single-month question → single-month answer only.
-- Compute MoM % only if Δ cues (vs|delta|change|MoM|m/m|month on month).
+- Compute MoM % only if delta cues (vs|delta|change|MoM|m/m|month on month).
 - Use only tokens from the target month’s row(s). Do not mix months.
 
 METRICS
-- GMV metric (live gmv, video gmv, showcase gmv): Two ways to find
+- GMV metric (live gmv, video gmv, showcase gmv): 
+Two ways to find
   1. If header with matching gmv metric contains a value, return that value. Else, move to 2.
   2. Find total GMV (detailed under Total GMV Search below) and multiply with GMV share
   3. If you went through 1 and 2 and still have not obtained a valid, reportable GMV, then say insufficient data. DO NOT say insufficient if you have not went through 1 and 2.
+  Repeat these steps if GMV metrics are needed to calculate month on month change.
 - Total GMV Search:
   • Work within the SAME SHEET + target MONTH; prefer the SAME ROW as the share/metric.
   • Candidate filter: ignore percents, dates, NaN/Infinity. Keep numbers ≥ 1,000 or with ≥4 digits (e.g., 759662, 2,970,189.79).
   • If any header says "total GMV" or equivalent, treat that number as total GMV.
-  • If still none, return “insufficient data for <month>”.
 - Share use:
   • If total GMV is found and a channel share exists, ALWAYS compute channel = total×share and state that you computed it.
 - “contribution/share/%/mix” = percentage (not amount). Accept any list of dicts with *_gmv keys.
@@ -183,6 +184,7 @@ PARSE
 OUTPUT (bullets ONLY — no preamble, no prose, no JSON)
 - First line starts with "- ".
 - Currency: compact ($818.9K, $2.39M, $3.61M). K=1 dp; M/B=2 dp.
+- Date: Always format as <Month (text)> <Year>
 - Percentages: 1 decimal.
 - Always include a label if you provide a number: <Metric Label> : <#>
 - If computed from share×total, add a second bullet: "Calculated as <channel> share (<p%>) × total GMV ($Y)".
