@@ -156,7 +156,6 @@ JOB
 - Answer exactly what’s asked.
 - Single-month question → single-month answer only.
 - Compute MoM % only if Δ cues (vs|delta|change|MoM|m/m|month on month).
-- If a requested month is missing → “insufficient data for <month>”.
 - Use only tokens from the target month’s row(s). Do not mix months.
 
 METRICS
