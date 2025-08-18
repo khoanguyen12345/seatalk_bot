@@ -56,8 +56,14 @@ def sendMessage(message):
 def find_row_and_fetch(spreadsheet_id: str, sheet_name: str, identifier: str, service):
     values_api = service.spreadsheets().values()
 
-    # 1) get only the lookup column (C:C)
-    lookup_range = f"'{sheet_name}'!C:C"
+    if identifier.isdigit():
+        identifier = "https://www.tiktok.com/@"+identifier
+        lookup_range = f"'{sheet_name}'!A:A"
+    elif "tiktok.com" in identifier:
+        lookup_range = f"'{sheet_name}'!A:A"
+    else:
+        lookup_range = f"'{sheet_name}'!C:C"
+
     col_resp = values_api.get(
         spreadsheetId=spreadsheet_id,
         range=lookup_range,
