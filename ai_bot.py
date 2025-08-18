@@ -184,6 +184,7 @@ OUTPUT (bullets ONLY — no preamble, no prose, no JSON)
 - First line starts with "- ".
 - Currency: compact ($818.9K, $2.39M, $3.61M). K=1 dp; M/B=2 dp.
 - Percentages: 1 decimal.
+- Always include a label if you provide a number: <Metric Label> : <#>
 - If computed from share×total, add a second bullet: "Calculated as <channel> share (<p%>) × total GMV ($Y)".
 """
 
