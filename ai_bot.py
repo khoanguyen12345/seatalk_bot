@@ -52,57 +52,61 @@ def sendMessage(message):
     response = requests.post(SEATALK_MESSAGE_URL, headers=headers, data=json.dumps(messageContent),timeout = 3.05)
     return response
 
-def getDataAndSendMessage(identifier,inputMessage):
-    service = authenticate_google_sheets()
+def find_row_and_fetch(spreadsheet_id: str, sheet_name: str, identifier: str, service):
+    values_api = service.spreadsheets().values()
 
-    sheet = service.spreadsheets()
+    # 1) get only the lookup column (C:C); keep responses small
+    lookup_range = f"'{sheet_name}'!C:C"
+    col_resp = values_api.get(
+        spreadsheetId=spreadsheet_id,
+        range=lookup_range,
+        valueRenderOption="UNFORMATTED_VALUE"
+    ).execute()
+    col_vals = col_resp.get("values", [])
+
+    # 2) find first exact match (strip to mirror your code)
+    row_idx_0 = next(
+        (i for i, row in enumerate(col_vals) if row and str(row[0]).strip() == str(identifier).strip()),
+        None
+    )
+    if row_idx_0 is None:
+        return None  # not found
+
+    # 3) fetch only that single row
+    row_num = row_idx_0 + 1  # A1 is 1-based
+    row_range = f"'{sheet_name}'!A{row_num}:ZZ{row_num}"
+    row_resp = values_api.get(
+        spreadsheetId=spreadsheet_id,
+        range=row_range,
+        valueRenderOption="UNFORMATTED_VALUE"
+    ).execute()
+    return (row_num, row_resp.get("values", [[]])[0])
+
+def getDataAndSendMessage(identifier, inputMessage):
+    service = authenticate_google_sheets()
 
     ID_RANGE_DICTIONARY = {
         "1YhJ7Fim_C9nKV-u8uh0xB6OZhxG5TvMljkPVeHI1U2k": ["[Mar25] List Result from BI","[Feb25] List Result from BI","[Jan25] List Result"],
         "1pJfWQweGxEr1V7ANy3H9iW0caN78g53h2ckGA8UasQU": ["June_Data"]
     }
 
-    all_values = {}
     result_rows = {}
-    
-    for spreadsheet_id, sheet_names in ID_RANGE_DICTIONARY.items():
-        for sheet_name in sheet_names:
-            rng = safe_range(sheet_name, "A1:ZZ999999")
-            result = sheet.values().get(spreadsheetId=spreadsheet_id, range=rng).execute()
-            values = result.get("values", [])
-            all_values.setdefault(spreadsheet_id, {})[sheet_name] = values
+    for sid, tabs in ID_RANGE_DICTIONARY.items():
+        for tab in tabs:
+            hit = find_row_and_fetch(sid, tab, identifier, service)
+            if hit:
+                _, row = hit
+                result_rows[tab] = row
+                # if you only need the first match overall, you can break here
 
-    lookup_col = 2
-    
-    lookup_col = 2  # zero-based
-    identifier_key = str(identifier).strip()
-
-    # first match per sheet/range
-    per_sheet_hits = {}           # {spreadsheet_id: {range_name: {"row_index": i, "row": [...]}}}
-
-    for spreadsheet_id, sheets in all_values.items():
-        for sheet_name, rows in sheets.items():  # was: rng
-            if not rows:
-                continue
-            found = None
-            for r_idx, row in enumerate(rows):
-                if len(row) > lookup_col and str(row[lookup_col]).strip() == identifier_key:
-                    found = {"row_index": r_idx, "row": row}
-                    break
-            if found:
-                per_sheet_hits.setdefault(spreadsheet_id, {})[sheet_name] = found
-                result_rows[sheet_name] = found["row"]  # <-- key-value pair
-    
-    if result_rows == {}:
-        sendMessage(f"**Error:** **{identifier}** not found.") 
+    if not result_rows:
+        sendMessage(f"**Error:** **{identifier}** not found.")
         return
 
-    prompt = generate_AI_prompt(inputMessage,result_rows)
-
-    AI_resp = model.generate_content(
-    prompt)
-
+    prompt = generate_AI_prompt(inputMessage, result_rows)
+    AI_resp = model.generate_content(prompt)
     sendMessage(gemini_text(AI_resp))
+
     return
 
 #################################### HELPER FUNCTIONS ##########################################
@@ -229,4 +233,5 @@ def bot_callback_handler():
         return Response("", status=204)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8888)
+    port = int(os.environ.get("PORT", 8888))
+    app.run(host="0.0.0.0", port=port)
