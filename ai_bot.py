@@ -176,16 +176,18 @@ OUTPUT (bullets ONLY — no preamble, no prose, no JSON)
 
 TEMPLATES
 - Single month (absolute found):
-  - Total GMV for <Mon YYYY>: $X
+  - <Metric>  for <Mon YYYY>: $X
 - Single month (derived from share×total):
-  - Total GMV for <Mon YYYY>: $X
+  - <Metric> for <Mon YYYY>: $X
   - Calculated as <channel> share (<p%>) × total GMV ($Y)
 - Multiple months (list values, chronological):
-  - GMV for <Mon YYYY>: $X
-  - GMV for <Mon YYYY>: $Y
-  - GMV for <Mon YYYY>: $Z
+  - <Metric> for <Mon YYYY>: $X
+  - <Metric> for <Mon YYYY>: $Y
+  - <Metric> for <Mon YYYY>: $Z
 - MoM change (if asked):
-  - <Metric> <From Mon YYYY> → <To Mon YYYY>: <+/-p%> (<+/-$Δ>), <From $> → <To $>
+  - <Metric> for <Mon XXXX>: $X
+  - <Metric> for <Mon YYYY>: $Y
+  - <Metric> <From Mon XXXX> → <To Mon YYYY>: <+/-p%> (<+/-$Δ>)
 
 DATA:
 """
