@@ -209,7 +209,7 @@ OUTPUT (bullets ONLY — no preamble, no prose, no code, no JSON)
 - For MoM questions, list the month bullets first, then a final summary bullet:
   - <Metric> <From Mon YYYY> → <To Mon YYYY>: <+/-p%> (<+/-$Δ>)
 - At the beginning of the OUTPUT, give a short introduction of the information you are going to give.
-- In the body of ther OUTPUT, give information in human readable format, parsing any dictionary or lists.
+- In the body of ther OUTPUT, give information in human readable format, parsing any dictionary or lists. Convert share to percentage (e.g 0.5 → 50%)
 - At the end of the OUTPUT, give suggestions on other information you can provide, based on the pasted data and headers of the KOL. If a suggestion cannot be answered with the data on hand (insufficient information), do not include it in the list. If there is no suggestion to be made, do not include this section in the OUTPUT.
 
 DATA:
