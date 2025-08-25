@@ -97,9 +97,9 @@ def getDataAndSendMessage(identifier, inputMessage):
     service = authenticate_google_sheets()
     
     CONTROL_SPREADSHEET_ID = "1ZZnxOAur3KnSaVfo2Iej2xM11jQaNrmKMaPC3nZAzyY"
-    RANGE_NAME = "Control Sheet!A2:B"
+    CONTROL_RANGE_NAME = "Control Sheet!A2:B9999"
     result = service.spreadsheets().values().get(
-    spreadsheetId=SPREADSHEET_ID, range=RANGE_NAME
+    spreadsheetId=CONTROL_SPREADSHEET_ID, range=CONTROL_RANGE_NAME
     ).execute()
 
     values = result.get("values", [])
