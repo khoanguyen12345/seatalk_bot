@@ -268,6 +268,8 @@ def bot_callback_handler():
     elif event_type == NEW_BOT_SUBSCRIBER:
         pass
     elif event_type == MESSAGE_FROM_BOT_SUBSCRIBER:
+        event = data.get("event", {})
+        message_obj = event.get("message", {})
         user_message = message_obj.get("text", {}).get("plain_text", "")
         inputString = user_message.split(" ",1)
         threading.Thread(target=getDataAndSendMessage, args=(normalize_key(inputString[0]), user_message)).start()
