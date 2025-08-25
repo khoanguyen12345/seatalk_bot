@@ -39,19 +39,33 @@ def is_valid_signature(signing_secret: bytes, body: bytes, signature: str) -> bo
     return hashlib.sha256(body + signing_secret).hexdigest() == signature
 
 
-def sendMessage(message):
-    messageContent = {
-        "tag": "text",
-        "text": {
-            "format": 1,
-            "content": message
+def sendMessage(employeeCode,message):
+    if employeeCode == "":
+        messageContent = {
+            "tag": "text",
+            "text": {
+                "format": 1,
+                "content": message
+            }
         }
-    }
-    headers = {
-        "Content-Type": "application/json"
-    }
-    response = requests.post(SEATALK_MESSAGE_URL, headers=headers, data=json.dumps(messageContent),timeout = 3.05)
+        headers = {
+            "Content-Type": "application/json"
+        }
+        response = requests.post(SEATALK_MESSAGE_URL, headers=headers, data=json.dumps(messageContent),timeout = 3.05)
+    else:
+        messageContent = {
+            "tag": "text",
+            "text": {
+                "format": 1,
+                "content": message
+            }
+        }
+        headers = {
+            "Content-Type": "application/json"
+        }
+        response = requests.post(employeeCode, headers=headers, data=json.dumps(messageContent),timeout = 3.05)
     return response
+        
 
 def find_row_and_fetch(spreadsheet_id: str, sheet_name: str, identifier: str, service):
     values_api = service.spreadsheets().values()
@@ -93,7 +107,7 @@ def find_row_and_fetch(spreadsheet_id: str, sheet_name: str, identifier: str, se
     ).execute()
     return (row_num, row_resp.get("values", [[]])[0])
 
-def getDataAndSendMessage(identifier, inputMessage):
+def getDataAndSendMessage(identifier, inputMessage,employeeCode):
     service = authenticate_google_sheets()
     
     CONTROL_SPREADSHEET_ID = "1ZZnxOAur3KnSaVfo2Iej2xM11jQaNrmKMaPC3nZAzyY"
@@ -127,7 +141,7 @@ def getDataAndSendMessage(identifier, inputMessage):
 
     prompt = generate_AI_prompt(inputMessage, result_rows)
     AI_resp = model.generate_content(prompt)
-    sendMessage(gemini_text(AI_resp))
+    sendMessage(employeeCode,gemini_text(AI_resp))
 
     return
 
@@ -270,9 +284,11 @@ def bot_callback_handler():
     elif event_type == MESSAGE_FROM_BOT_SUBSCRIBER:
         event = data.get("event", {})
         message_obj = event.get("message", {})
+        sender = message_obj.get("sender", {})
+        sender_employee_code = sender.get("employee_code", "")
         user_message = message_obj.get("text", {}).get("plain_text", "")
         inputString = user_message.split(" ",1)
-        threading.Thread(target=getDataAndSendMessage, args=(normalize_key(inputString[0]), user_message)).start()
+        threading.Thread(target=getDataAndSendMessage, args=(normalize_key(inputString[0]), user_message,sender_employee_code)).start()
         return Response("", status=200)
         
     elif event_type == INTERACTIVE_MESSAGE_CLICK:
@@ -294,7 +310,7 @@ def bot_callback_handler():
         user_message = user_message[len(mention_tag):].lstrip()
 
         inputString = user_message.split(" ",1)
-        threading.Thread(target=getDataAndSendMessage, args=(normalize_key(inputString[0]), user_message)).start()
+        threading.Thread(target=getDataAndSendMessage, args=(normalize_key(inputString[0]), user_message,"")).start()
         return Response("", status=200)
     else:
         return Response("", status=204)
