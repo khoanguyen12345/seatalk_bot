@@ -54,16 +54,16 @@ def sendMessage(employeeCode,message):
         response = requests.post(SEATALK_MESSAGE_URL, headers=headers, data=json.dumps(messageContent),timeout = 3.05)
     else:
         messageContent = {
+        "employee_code": employeeCode,
+        "message": {
             "tag": "text",
-            "text": {
-                "format": 1,
-                "content": message
-            }
+            "text": {"format": 1, "content": message}
         }
+    }
         headers = {
             "Content-Type": "application/json"
         }
-        response = requests.post(employeeCode, headers=headers, data=json.dumps(messageContent),timeout = 3.05)
+        response = requests.post(headers=headers, data=json.dumps(messageContent),timeout = 3.05)
     return response
         
 
