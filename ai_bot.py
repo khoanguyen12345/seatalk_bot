@@ -284,7 +284,7 @@ def bot_callback_handler():
     elif event_type == MESSAGE_FROM_BOT_SUBSCRIBER:
         event = data.get("event", {})
         message_obj = event.get("message", {})
-        sender = message_obj.get("sender", {})
+        sender = event.get("sender", {})
         sender_employee_code = sender.get("employee_code", "")
         user_message = message_obj.get("text", {}).get("plain_text", "")
         inputString = user_message.split(" ",1)
