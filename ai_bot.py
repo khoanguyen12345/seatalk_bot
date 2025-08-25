@@ -95,11 +95,22 @@ def find_row_and_fetch(spreadsheet_id: str, sheet_name: str, identifier: str, se
 
 def getDataAndSendMessage(identifier, inputMessage):
     service = authenticate_google_sheets()
+    
+    CONTROL_SPREADSHEET_ID = "1ZZnxOAur3KnSaVfo2Iej2xM11jQaNrmKMaPC3nZAzyY"
+    RANGE_NAME = "Control Sheet!A2:B"
+    result = service.spreadsheets().values().get(
+    spreadsheetId=SPREADSHEET_ID, range=RANGE_NAME
+    ).execute()
 
-    ID_RANGE_DICTIONARY = {
-        "1YhJ7Fim_C9nKV-u8uh0xB6OZhxG5TvMljkPVeHI1U2k": ["[Mar25] List Result from BI","[Feb25] List Result from BI","[Jan25] List Result"],
-        "1pJfWQweGxEr1V7ANy3H9iW0caN78g53h2ckGA8UasQU": ["June_Data"]
-    }
+    values = result.get("values", [])
+    ID_RANGE_DICTIONARY = {}
+
+    for row in values:
+        if len(row) >= 2:
+            sheet_id, sheet_name = row[0], row[1]
+            if sheet_id not in ID_RANGE_DICTIONARY:
+                ID_RANGE_DICTIONARY[sheet_id] = []
+            ID_RANGE_DICTIONARY[sheet_id].append(sheet_name)
 
     result_rows = {}
     for sid, tabs in ID_RANGE_DICTIONARY.items():
@@ -257,7 +268,11 @@ def bot_callback_handler():
     elif event_type == NEW_BOT_SUBSCRIBER:
         pass
     elif event_type == MESSAGE_FROM_BOT_SUBSCRIBER:
-        pass
+        user_message = message_obj.get("text", {}).get("plain_text", "")
+        inputString = user_message.split(" ",1)
+        threading.Thread(target=getDataAndSendMessage, args=(normalize_key(inputString[0]), user_message)).start()
+        return Response("", status=200)
+        
     elif event_type == INTERACTIVE_MESSAGE_CLICK:
         pass
     elif event_type == BOT_ADDED_TO_GROUP_CHAT:
@@ -277,13 +292,6 @@ def bot_callback_handler():
         user_message = user_message[len(mention_tag):].lstrip()
 
         inputString = user_message.split(" ",1)
-        try:
-            informationFields = inputString[1]
-            fields = informationFields.split(" ")
-        except:
-            sendMessage("**Error:** No information requested.")
-            return Response("", status=200)
-        
         threading.Thread(target=getDataAndSendMessage, args=(normalize_key(inputString[0]), user_message)).start()
         return Response("", status=200)
     else:
